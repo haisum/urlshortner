@@ -9,7 +9,7 @@ import (
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", urlshortner.HomeHandler).Methods("GET")
-	r.HandleFunc("/static/", http.FileServer(http.Dir("static"))).Methods("GET")
+	r.Handle("/static/", http.FileServer(http.Dir("static"))).Methods("GET")
 	r.HandleFunc("/stats/{id:[0-9]+}", urlshortner.StatsHandler).Methods("GET")
 	r.HandleFunc("/l/{url}", urlshortner.ExpandHandler).Methods("GET")
 	r.HandleFunc("/shorten", urlshortner.ShortenHandler).Methods("POST")

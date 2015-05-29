@@ -11,6 +11,10 @@
 
 package urlshortner
 
+import (
+	"net/http"
+)
+
 // Errors type is used to record all errors ocurred during different operations in this web app and is printed as json to browser.
 type Errors struct {
 	errors []error
