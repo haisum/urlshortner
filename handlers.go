@@ -12,6 +12,8 @@
 package urlshortner
 
 import (
+	"html/template"
+	"log"
 	"net/http"
 )
 
@@ -24,7 +26,11 @@ type Errors struct {
 // Renders form for shortening url
 // If user is logged in, it also renders all previosuly shortened links of user with some stats
 func HomeHandler(rw http.ResponseWriter, req *http.Request) {
-
+	t, err := template.ParseFiles("./templates/index.html")
+	if err != nil {
+		log.Fatalf("Could not find template file template/index.html. Error: %s.", err)
+	}
+	t.Execute(rw, nil)
 }
 
 // This handler receives POST request with parameter "url" on route /shorten
