@@ -66,7 +66,7 @@ func (db *Db) createDb() error {
 	
 	CREATE TABLE IF NOT EXISTS  urls (
 	    id INTEGER PRIMARY KEY AUTOINCREMENT,
-	    longurl TEXT,
+	    url TEXT,
 	    userid INTEGER NULL,
 	    ondate INTEGER
     );
