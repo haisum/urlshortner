@@ -89,29 +89,3 @@ func (db *Db) createDb() error {
 
 	return err
 }
-
-type User struct {
-	Id       int64
-	Email    string
-	Password string
-	Ondate   int64
-}
-
-func (u *User) Save(con *sqlx.DB) error {
-	query := "INSERT INTO users (email, password, onDate) values (:email , :password, :ondate)"
-	_, err := con.NamedExec(query, u)
-	return err
-}
-
-func (u *User) EmailGet(con *sqlx.DB) error {
-	query := "SELECT * FROM users where email = :email"
-	err := con.Get(&u, query)
-	return err
-}
-
-type Url struct {
-	Id      int64
-	Longurl string
-	Userid  int64
-	Ondate  int64
-}
