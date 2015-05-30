@@ -8,6 +8,10 @@ import (
 )
 
 func main() {
+	db := urlshortner.Db{
+		Name: "./urlshortner.db",
+	}
+	db.ConnectDb()
 	r := mux.NewRouter()
 	r.HandleFunc("/", urlshortner.HomeHandler).Methods("GET")
 	r.HandleFunc("/stats/{id:[0-9]+}", urlshortner.StatsHandler).Methods("GET")
