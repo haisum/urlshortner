@@ -3,6 +3,7 @@ package urlshortner
 import (
 	"errors"
 	"github.com/jmoiron/sqlx"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -71,4 +72,14 @@ func GetAllUrls(con *sqlx.DB, userId int, offset int, limit int) ([]Url, error) 
 		limit,
 	})
 	return urls, err
+}
+
+// Converts a base36 string to int representation
+func UrlStringToId(s string) (int64, error) {
+	return strconv.ParseInt(s, 36, 64)
+}
+
+// Converts an int to base36 string
+func IdToUrlString(id int64) string {
+	return strconv.FormatInt(id, 36)
 }

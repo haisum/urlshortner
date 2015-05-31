@@ -17,11 +17,6 @@ import (
 	"net/http"
 )
 
-// Errors type is used to record all errors ocurred during different operations in this web app and is printed as json to browser.
-type Errors struct {
-	errors []error
-}
-
 // Handles all GET requests intended for "/" route
 // Renders form for shortening url
 // If user is logged in, it also renders all previosuly shortened links of user with some stats
