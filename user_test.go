@@ -8,11 +8,7 @@ import (
 )
 
 func TestUser(t *testing.T) {
-	db := Db{
-		Name: "urlshortner_test.db",
-	}
-	db.ConnectDb()
-	con := db.Con
+	con := app.Db
 
 	data := User{
 		Email:    "haisumbhatti@gmail.com",
@@ -42,11 +38,7 @@ func TestUser(t *testing.T) {
 }
 
 func TestUser_Save(t *testing.T) {
-	db := Db{
-		Name: "urlshortner_test.db",
-	}
-	db.ConnectDb()
-	con := db.Con
+	con := app.Db
 
 	users := []User{
 		{Email: "haisum1@gmail.com", Password: "helloworld"},
@@ -58,7 +50,7 @@ func TestUser_Save(t *testing.T) {
 	}
 
 	for k, _ := range users {
-		err := users[k].Save(con)
+		err := users[k].Save()
 		if err != nil {
 			t.Fatalf("Error: %s", err)
 		}
@@ -84,11 +76,6 @@ func TestUser_Save(t *testing.T) {
 }
 
 func TestUser_Validate(t *testing.T) {
-	db := Db{
-		Name: "urlshortner_test.db",
-	}
-	db.ConnectDb()
-	con := db.Con
 	//all valid users
 	users := []User{
 		{Email: "haisum7@gmail.com", Password: "helloworld"},
@@ -100,7 +87,7 @@ func TestUser_Validate(t *testing.T) {
 	}
 
 	for k, _ := range users {
-		err := users[k].Validate(con)
+		err := users[k].Validate()
 		if err != nil {
 			t.Fatalf("\nError: %s\n", err)
 		}
@@ -112,7 +99,7 @@ func TestUser_Validate(t *testing.T) {
 		Email:    "bademail@.c",
 		Password: "ioweiorioweio",
 	}
-	errs = user.Validate(con)
+	errs = user.Validate()
 	if errs == nil || errs[0].Error() != "Not a valid Email address." || len(errs) > 1 {
 		t.Fatalf("\nFailed validation for invalid email\n")
 	}
@@ -121,7 +108,7 @@ func TestUser_Validate(t *testing.T) {
 		Email:    "",
 		Password: "ioweirioiwoeroiweroewr",
 	}
-	errs = user.Validate(con)
+	errs = user.Validate()
 	if errs == nil || errs[0].Error() != "Email must not be empty" || len(errs) > 1 {
 		t.Fatalf("\nFailed validation for empty email\n")
 	}
@@ -130,7 +117,7 @@ func TestUser_Validate(t *testing.T) {
 		Email:    "jasjdkj@sdfsfd.com",
 		Password: "ioewr",
 	}
-	errs = user.Validate(con)
+	errs = user.Validate()
 	if errs == nil || errs[0].Error() != "Password must be at least 6 chars long." || len(errs) > 1 {
 		t.Fatalf("\nFailed validation for short password\n")
 	}
@@ -139,7 +126,7 @@ func TestUser_Validate(t *testing.T) {
 		Email:    "weuiuiew@sdfklsalkfklsdfklskldfklklasdfklskladfklsdfkldsf.com",
 		Password: "l;wld;flsa;dl;flsdaklfklsdaklfklsdaklfklsdalfkkldsflkklsdflklkdsf",
 	}
-	errs = user.Validate(con)
+	errs = user.Validate()
 	if errs == nil || errs[0].Error() != "Email can't be longer than 50 chars." || errs[1].Error() != "Password can't be more than 30 chars long." || len(errs) != 2 {
 		t.Fatalf("\nFailed validation for long password and email\n")
 	}
@@ -148,9 +135,9 @@ func TestUser_Validate(t *testing.T) {
 		Email:    "haisum@abc.com",
 		Password: "helloworld1",
 	}
-	user.Save(con)
+	user.Save()
 
-	errs = user.Validate(con)
+	errs = user.Validate()
 	if errs == nil || errs[0].Error() != "Email already registered." || len(errs) > 1 {
 		t.Fatalf("\nEmail validation for already existing mail failed. %s\n")
 	}
@@ -158,17 +145,11 @@ func TestUser_Validate(t *testing.T) {
 }
 
 func TestUser_GetEmail(t *testing.T) {
-	db := Db{
-		Name: "urlshortner_test.db",
-	}
-	db.ConnectDb()
-	con := db.Con
-
 	user1 := User{
 		Email:    "haisum1@abc.com",
 		Password: "helloworld1",
 	}
-	err := user1.Save(con)
+	err := user1.Save()
 	if err != nil {
 		t.Fatalf("Couldn't insert user %v", user1)
 	}
@@ -177,7 +158,7 @@ func TestUser_GetEmail(t *testing.T) {
 		Email: "haisum1@abc.com",
 	}
 
-	err = user2.EmailGet(con)
+	err = user2.EmailGet()
 
 	if err != nil {
 		t.Fatalf("Error: %s", err)

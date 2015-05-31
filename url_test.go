@@ -7,12 +7,7 @@ import (
 )
 
 func TestUrl(t *testing.T) {
-	db := Db{
-		Name: "urlshortner_test.db",
-	}
-	db.ConnectDb()
-	con := db.Con
-
+	con := app.Db
 	data := Url{
 		Url:    "http://github.com/mysuperlongurl",
 		Userid: 1,
@@ -41,11 +36,7 @@ func TestUrl(t *testing.T) {
 }
 
 func TestUrl_Save(t *testing.T) {
-	db := Db{
-		Name: "urlshortner_test.db",
-	}
-	db.ConnectDb()
-	con := db.Con
+	con := app.Db
 
 	data := []Url{
 		{
@@ -63,7 +54,7 @@ func TestUrl_Save(t *testing.T) {
 	}
 
 	for x := 0; x < len(data); x++ {
-		err := data[x].Save(con)
+		err := data[x].Save()
 		if err != nil {
 			t.Fatalf("Error: %s", err)
 		}
@@ -83,23 +74,17 @@ func TestUrl_Save(t *testing.T) {
 }
 
 func TestUrl_Get(t *testing.T) {
-	db := Db{
-		Name: "urlshortner_test.db",
-	}
-	db.ConnectDb()
-	con := db.Con
-
 	url1 := Url{
 		Url: "localhost",
 	}
 
-	url1.Save(con)
+	url1.Save()
 
 	url2 := Url{
 		Id: url1.Id,
 	}
 
-	url2.Get(con)
+	url2.Get()
 
 	if url2.Url != url1.Url {
 		t.Fatalf("Failed url get via id")
@@ -107,12 +92,6 @@ func TestUrl_Get(t *testing.T) {
 }
 
 func TestGetAllUrls(t *testing.T) {
-	db := Db{
-		Name: "urlshortner_test.db",
-	}
-	db.ConnectDb()
-	con := db.Con
-
 	data := []Url{
 		{
 			Url:    "http://github.com/mysuperlongurl",
@@ -142,12 +121,12 @@ func TestGetAllUrls(t *testing.T) {
 	}
 
 	for x := 0; x < len(data); x++ {
-		err := data[x].Save(con)
+		err := data[x].Save()
 		if err != nil {
 			t.Fatalf("Error: %s", err)
 		}
 	}
-	urls, err := GetAllUrls(con, 2, 0, 10)
+	urls, err := GetAllUrls(2, 0, 10)
 
 	if err != nil {
 		t.Fatalf("%s", err)

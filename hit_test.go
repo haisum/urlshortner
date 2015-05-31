@@ -6,11 +6,7 @@ import (
 )
 
 func TestHit_Save(t *testing.T) {
-	db := Db{
-		Name: "urlshortner_test.db",
-	}
-	db.ConnectDb()
-	con := db.Con
+	con := app.Db
 
 	data := []Hit{
 		{
@@ -31,7 +27,7 @@ func TestHit_Save(t *testing.T) {
 	}
 
 	for x := 0; x < len(data); x++ {
-		err := data[x].Save(con)
+		err := data[x].Save()
 		if err != nil {
 			t.Fatalf("Error: %s", err)
 		}

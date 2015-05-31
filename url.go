@@ -2,7 +2,7 @@ package urlshortner
 
 import (
 	"errors"
-	"github.com/jmoiron/sqlx"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -16,23 +16,31 @@ type Url struct {
 	Ondate int64
 }
 
-func (u *Url) Save(con *sqlx.DB) error {
+func (u *Url) Save() error {
 	u.Ondate = time.Now().Unix()
+	re := regexp.MustCompile(`^(ftp|http|https):\/\/`)
+	if !re.MatchString(u.Url) {
+		u.Url = "http://" + u.Url
+	}
 	query := "INSERT INTO urls (url, userid, ondate) values (:url , :userid, :ondate)"
-	r, err := con.NamedExec(query, u)
-	u.Id, _ = r.LastInsertId()
+	r, err := app.Db.NamedExec(query, u)
+	if err != nil {
+		return err
+	}
+	u.Id, err = r.LastInsertId()
 	return err
 }
 
-// Validates a url record for url length
-// Note: pattern isn't deliberately checked because url could be anything such as localhost or http://example.com or www.example.com or localhost.dev
-// By restricting pattern we may make app less usable for some users
+// Validates a url record for url length and pattern
 // returns nil if valid record and
 // returns []error if there were errors encountered
 func (u Url) Validate() []error {
 	errs := make([]error, 0)
+	re := regexp.MustCompile(`^((ftp|http|https):\/\/)?(\S+(:\S*)?@)?((([1-9]\d?|1\d\d|2[01]\d|22[0-3])(\.(1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.([0-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|((www\.)?)?(([a-z\x{00a1}-\x{ffff}0-9]+-?-?_?)*[a-z\x{00a1}-\x{ffff}0-9]+)(?:\.([a-z\x{00a1}-\x{ffff}]{2,}))?)|localhost)(:(\d{1,5}))?((\/|\?|#)[^\s]*)?$`)
 	if len(strings.TrimSpace(u.Url)) == 0 {
 		errs = append(errs, errors.New("Url must not be empty"))
+	} else if !re.MatchString(u.Url) {
+		errs = append(errs, errors.New(u.Url+" is not a valid url."))
 	}
 	if len(u.Url) > 300 {
 		errs = append(errs, errors.New("Url can't be longer than 300 chars."))
@@ -46,8 +54,8 @@ func (u Url) Validate() []error {
 }
 
 //Gets a url from id
-func (u *Url) Get(con *sqlx.DB) error {
-	st, err := con.PrepareNamed("SELECT * FROM urls where id = :id")
+func (u *Url) Get() error {
+	st, err := app.Db.PrepareNamed("SELECT * FROM urls where id = :id")
 	if err != nil {
 		return err
 	}
@@ -56,9 +64,9 @@ func (u *Url) Get(con *sqlx.DB) error {
 }
 
 // Gets urls of a user from offset to limit
-func GetAllUrls(con *sqlx.DB, userId int, offset int, limit int) ([]Url, error) {
+func GetAllUrls(userId int, offset int, limit int) ([]Url, error) {
 	var urls = []Url{}
-	st, err := con.PrepareNamed("SELECT * FROM urls where userid = :userid LIMIT :offset, :limit")
+	st, err := app.Db.PrepareNamed("SELECT * FROM urls where userid = :userid LIMIT :offset, :limit")
 	if err != nil {
 		return nil, err
 	}

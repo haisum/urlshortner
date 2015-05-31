@@ -1,7 +1,6 @@
 package urlshortner
 
 import (
-	"github.com/jmoiron/sqlx"
 	"time"
 )
 
@@ -11,15 +10,15 @@ type Hit struct {
 	Id       int64
 	Referrer string
 	Ip       string
-	Urlid    int
+	Urlid    int64
 	Ondate   int64
 }
 
 //Saves a hit
-func (h *Hit) Save(con *sqlx.DB) error {
+func (h *Hit) Save() error {
 	h.Ondate = time.Now().Unix()
 	query := "INSERT INTO hits (ip, referrer, urlid, ondate) values (:ip , :referrer, :urlid, :ondate)"
-	r, err := con.NamedExec(query, h)
+	r, err := app.Db.NamedExec(query, h)
 	if err != nil {
 		return err
 	}

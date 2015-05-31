@@ -2,7 +2,6 @@ package urlshortner
 
 import (
 	"errors"
-	"github.com/jmoiron/sqlx"
 	"golang.org/x/crypto/bcrypt"
 	"regexp"
 	"strings"
@@ -27,7 +26,7 @@ type User struct {
 // Calculates hash for password and saves user in users table
 //
 // Takes db.Con in argument
-func (u *User) Save(con *sqlx.DB) error {
+func (u *User) Save() error {
 	password := []byte(u.Password)
 	// Hashing the password with the cost of 10
 	hashedPassword, err := bcrypt.GenerateFromPassword(password, 10)
@@ -41,7 +40,7 @@ func (u *User) Save(con *sqlx.DB) error {
 	u.Ondate = time.Now().Unix()
 
 	query := "INSERT INTO users (email, password, onDate) values (:email , :password, :ondate)"
-	r, err := con.NamedExec(query, u)
+	r, err := app.Db.NamedExec(query, u)
 	if err != nil {
 		return err
 	}
@@ -54,7 +53,7 @@ func (u *User) Save(con *sqlx.DB) error {
 // Validates a user record for password length and email
 // returns nil if valid record and
 // returns []error if there were errors encountered
-func (u User) Validate(con *sqlx.DB) []error {
+func (u User) Validate() []error {
 	errs := make([]error, 0)
 	emailPattern := regexp.MustCompile("[\\w!#$%&'*+/=?^_`{|}~-]+(?:\\.[\\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\\w](?:[\\w-]*[\\w])?\\.)+[a-zA-Z0-9](?:[\\w-]*[\\w])?")
 	user := User{
@@ -64,7 +63,7 @@ func (u User) Validate(con *sqlx.DB) []error {
 		errs = append(errs, errors.New("Email must not be empty"))
 	} else if !emailPattern.MatchString(u.Email) {
 		errs = append(errs, errors.New("Not a valid Email address."))
-	} else if user.EmailGet(con); user.Id != 0 {
+	} else if user.EmailGet(); user.Id != 0 {
 		errs = append(errs, errors.New("Email already registered."))
 	}
 
@@ -90,8 +89,8 @@ func (u User) Validate(con *sqlx.DB) []error {
 // or returns error on failure
 //
 // Takes db.Con in argument
-func (u *User) EmailGet(con *sqlx.DB) error {
-	st, err := con.PrepareNamed("SELECT * FROM users where email = :email")
+func (u *User) EmailGet() error {
+	st, err := app.Db.PrepareNamed("SELECT * FROM users where email = :email")
 	if err != nil {
 		return err
 	}
