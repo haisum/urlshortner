@@ -36,7 +36,7 @@ func (u *Url) Save() error {
 // returns []error if there were errors encountered
 func (u Url) Validate() []error {
 	errs := make([]error, 0)
-	re := regexp.MustCompile(`^((ftp|http|https):\/\/)?(\S+(:\S*)?@)?((([1-9]\d?|1\d\d|2[01]\d|22[0-3])(\.(1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.([0-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|((www\.)?)?(([a-z\x{00a1}-\x{ffff}0-9]+-?-?_?)*[a-z\x{00a1}-\x{ffff}0-9]+)(?:\.([a-z\x{00a1}-\x{ffff}]{2,}))?)|localhost)(:(\d{1,5}))?((\/|\?|#)[^\s]*)?$`)
+	re := regexp.MustCompile(`^((ftp|http|https):\/\/)?([a-zA-Z0-9]+(\.[a-zA-Z0-9]+)+.*)$`)
 	if len(strings.TrimSpace(u.Url)) == 0 {
 		errs = append(errs, errors.New("Url must not be empty"))
 	} else if !re.MatchString(u.Url) {
