@@ -1,16 +1,24 @@
 package urlshortner
 
 import (
+	"encoding/gob"
 	"os"
 	"testing"
+	"time"
 )
-
-var app = new(App)
 
 //remove test db file before and after running tests .
 func TestMain(m *testing.M) {
 	os.Remove("urlshortner_test.db")
-	app.ConnectDb("urlshortner_test.db")
+
+	app.ConnectDb("./urlshortner_test.db")
+	//start a go routine in separate thread to discard all failed login attempt records after one hour
+	app.FailedAttempts = make(map[string]*FailedAttempt)
+	app.CleanFailedAttempts(time.Minute * 60)
+
+	//initialize session with a secret to encrypt cookies
+	gob.Register(User{})
+	app.InitSessionStore()
 
 	r := m.Run()
 	os.Remove("urlshortner_test.db")

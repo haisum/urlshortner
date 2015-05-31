@@ -1,6 +1,7 @@
 package urlshortner
 
 import (
+	"log"
 	"time"
 )
 
@@ -17,11 +18,12 @@ type Hit struct {
 //Saves a hit
 func (h *Hit) Save() error {
 	h.Ondate = time.Now().Unix()
+	log.Printf("Saving hit %v", h)
 	query := "INSERT INTO hits (ip, referrer, urlid, ondate) values (:ip , :referrer, :urlid, :ondate)"
 	r, err := app.Db.NamedExec(query, h)
 	if err != nil {
 		return err
 	}
-	h.Id, _ = r.LastInsertId()
-	return nil
+	h.Id, err = r.LastInsertId()
+	return err
 }

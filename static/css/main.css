@@ -62,6 +62,12 @@ textarea {
 .pagination li.active{
     background-color: #4CAF50;
 }
+#pagination-meta{
+    margin-top: 10px;
+}
+.button-load{
+    top: 12px;
+}
 /* ==========================================================================
    Media Queries
    ========================================================================== */

@@ -20,6 +20,8 @@ func main() {
 	//yes, logout should be a post request! See: http://blog.codinghorror.com/cross-site-request-forgeries-and-you/
 	r.HandleFunc("/logout", urlshortner.LogoutHandler).Methods("POST")
 	r.HandleFunc("/register", urlshortner.RegisterHandler).Methods("POST")
+	//handler for showing data for currently logged in user
+	r.HandleFunc("/me", urlshortner.MeHandler).Methods("GET")
 	//serve static content from static folder
 	s := http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))
 	r.PathPrefix("/static/").Handler(s)

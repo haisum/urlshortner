@@ -19,29 +19,52 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 )
+
+//template data is used to pass data to template index.html
+type TemplateData struct {
+	Email string
+}
 
 // Handles all GET requests intended for "/" route
 // Renders form for shortening url
 // If user is logged in, it also renders all previosuly shortened links of user with some stats
 func HomeHandler(rw http.ResponseWriter, req *http.Request) {
-	t, err := template.ParseFiles("./templates/index.html")
+	//t, err := template.Delims("{#", "#}").ParseFiles("./templates/index.html")
+	t := template.New("index.html")
+	t.Delims("[[", "]]")
+	t, err := t.ParseFiles("./templates/index.html")
 	if err != nil {
 		log.Fatalf("Could not find template file template/index.html. Error: %s.", err)
 	}
-	t.Execute(rw, nil)
+
+	session := app.GetSession(req)
+	td := TemplateData{}
+	if u, ok := session.Values["user"].(User); ok {
+		td.Email = u.Email
+	}
+	err = t.Execute(rw, td)
+	if err != nil {
+		log.Printf("Couldn't show template with data %v. Error %s", td, err)
+	}
 }
 
 type ShortenResponse struct {
 	Errors  []string
 	Success bool
 	Url     string
+	LongUrl string
 }
 
 // This handler receives POST request with parameter "url" on route /shorten
 // and prints json for Url struct object or Errors struct object for errors
 func ShortenHandler(rw http.ResponseWriter, req *http.Request) {
+	//just to show off the ajax loading effect
+	//remove this in production
+	time.Sleep(time.Second * 1)
 	session := app.GetSession(req)
 	ul := Url{
 		Url: req.PostFormValue("url"),
@@ -85,6 +108,7 @@ func ShortenHandler(rw http.ResponseWriter, req *http.Request) {
 
 	r.Success = true
 	r.Url = strings.TrimRight(req.Referer(), "/") + "/l/" + IdToUrlString(ul.Id)
+	r.LongUrl = ul.Url
 	fmt.Fprintf(rw, "%s", GetJson(r))
 }
 
@@ -134,6 +158,9 @@ type LoginResponse struct {
 // This also sets session via gorilla/sessions and stores User struct object in session "user"
 // Format for request is /login
 func LoginHandler(rw http.ResponseWriter, req *http.Request) {
+	//just to show off the ajax loading effect
+	//remove this in production
+	time.Sleep(time.Second * 1)
 	r := LoginResponse{
 		Errors: make([]string, 0),
 	}
@@ -197,6 +224,9 @@ func LoginHandler(rw http.ResponseWriter, req *http.Request) {
 
 // Receives POST request on route /logout , unsets session "user" and redirects to "/"
 func LogoutHandler(rw http.ResponseWriter, req *http.Request) {
+	//just to show off the ajax loading effect
+	//remove this in production
+	time.Sleep(time.Second * 1)
 	session := app.GetSession(req)
 	delete(session.Values, "user")
 	session.Save(req, rw)
@@ -213,6 +243,9 @@ type RegisterResponse struct {
 // If email is valid, isn't already registered and password is at least 6 chars long handler inserts data in users table and
 // calls LoginHandler. Otherwise, Errors struct object is printed as json.
 func RegisterHandler(rw http.ResponseWriter, req *http.Request) {
+	//just to show off the ajax loading effect
+	//remove this in production
+	time.Sleep(time.Second * 1)
 	r := RegisterResponse{
 		Errors: make([]string, 0),
 	}
@@ -259,5 +292,70 @@ func RegisterHandler(rw http.ResponseWriter, req *http.Request) {
 
 	r.User = user
 	r.Success = true
+	fmt.Fprintf(rw, "%s", GetJson(r))
+}
+
+type UrlResponse struct {
+	Hits    []Hit
+	Created int64
+	Id      string
+	Url     string
+}
+
+type MeResponse struct {
+	Success bool
+	Email   string
+	Urls    []UrlResponse
+	Total   int64
+}
+
+func MeHandler(rw http.ResponseWriter, req *http.Request) {
+	session := app.GetSession(req)
+	r := MeResponse{
+		Urls: make([]UrlResponse, 0),
+	}
+	u, ok := session.Values["user"].(User)
+
+	if !ok {
+		log.Printf("User not registered. Attempt to access /me")
+		fmt.Fprintf(rw, "%s", GetJson(r))
+		return
+	}
+	r.Email = u.Email
+	r.Success = true
+
+	offset, err := strconv.Atoi(req.FormValue("offset"))
+	if err != nil {
+		offset = 0
+	}
+	limit, err := strconv.Atoi(req.FormValue("limit"))
+	if err != nil {
+		limit = 10
+	}
+
+	urls, err := GetAllUrls(u.Id, offset, limit)
+
+	if err != nil {
+		log.Printf("Couldn't get urls. %s", err)
+	}
+
+	for _, u := range urls {
+		hits, err := u.GetHits()
+		if err != nil {
+			log.Printf("Couldn't get hits. %s", err)
+		}
+		ur := UrlResponse{
+			Url:     u.Url,
+			Created: u.Ondate,
+			Id:      strings.TrimRight(req.Referer(), "/") + "/" + IdToUrlString(u.Id),
+			Hits:    hits,
+		}
+		r.Urls = append(r.Urls, ur)
+	}
+	total, err := GetTotalUrls(u.Id)
+	if err != nil {
+		log.Printf("Couldn't get total urls of user %d. %s", u.Id, err)
+	}
+	r.Total = total
 	fmt.Fprintf(rw, "%s", GetJson(r))
 }

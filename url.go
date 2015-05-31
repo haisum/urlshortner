@@ -63,15 +63,26 @@ func (u *Url) Get() error {
 	return err
 }
 
+//Get all hits for a url
+func (u *Url) GetHits() ([]Hit, error) {
+	st, err := app.Db.PrepareNamed("SELECT referrer, ip, ondate FROM hits where urlid = :id")
+	if err != nil {
+		return nil, err
+	}
+	hits := []Hit{}
+	err = st.Select(&hits, u)
+	return hits, err
+}
+
 // Gets urls of a user from offset to limit
-func GetAllUrls(userId int, offset int, limit int) ([]Url, error) {
+func GetAllUrls(userId int64, offset int, limit int) ([]Url, error) {
 	var urls = []Url{}
 	st, err := app.Db.PrepareNamed("SELECT * FROM urls where userid = :userid LIMIT :offset, :limit")
 	if err != nil {
 		return nil, err
 	}
 	err = st.Select(&urls, struct {
-		Userid int
+		Userid int64
 		Offset int
 		Limit  int
 	}{
@@ -80,6 +91,21 @@ func GetAllUrls(userId int, offset int, limit int) ([]Url, error) {
 		limit,
 	})
 	return urls, err
+}
+
+// Gets urls of a user from offset to limit
+func GetTotalUrls(userId int64) (int64, error) {
+	count := int64(0)
+	st, err := app.Db.PrepareNamed("SELECT count(*) FROM urls where userid = :userid")
+	if err != nil {
+		return count, err
+	}
+	err = st.Get(&count, struct {
+		Userid int64
+	}{
+		userId,
+	})
+	return count, err
 }
 
 // Converts a base36 string to int representation
