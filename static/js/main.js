@@ -42,7 +42,11 @@ var app = {
 			dataType : "json",
 			type : "post"
 		}).done(function(data){
-			grecaptcha.reset()
+			try{
+				grecaptcha.reset()
+			} catch(err) {
+
+			}
 			$("#shorten-load").removeClass("active");
 			$("#shortened-link").html(app.templates.shorten(data));
 			app.loadData(0, 5);

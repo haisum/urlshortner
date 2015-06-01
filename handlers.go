@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/haisum/recaptcha"
+	"github.com/haisum/urlshortner/timediff"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
 	"log"
@@ -297,7 +298,7 @@ func RegisterHandler(rw http.ResponseWriter, req *http.Request) {
 
 type UrlResponse struct {
 	Hits    []Hit
-	Created int64
+	Created string
 	Id      string
 	Url     string
 }
@@ -314,14 +315,14 @@ func MeHandler(rw http.ResponseWriter, req *http.Request) {
 	r := MeResponse{
 		Urls: make([]UrlResponse, 0),
 	}
-	u, ok := session.Values["user"].(User)
+	user, ok := session.Values["user"].(User)
 
 	if !ok {
 		log.Printf("User not registered. Attempt to access /me")
 		fmt.Fprintf(rw, "%s", GetJson(r))
 		return
 	}
-	r.Email = u.Email
+	r.Email = user.Email
 	r.Success = true
 
 	offset, err := strconv.Atoi(req.FormValue("offset"))
@@ -333,7 +334,7 @@ func MeHandler(rw http.ResponseWriter, req *http.Request) {
 		limit = 10
 	}
 
-	urls, err := GetAllUrls(u.Id, offset, limit)
+	urls, err := GetAllUrls(user.Id, offset, limit)
 
 	if err != nil {
 		log.Printf("Couldn't get urls. %s", err)
@@ -344,17 +345,18 @@ func MeHandler(rw http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			log.Printf("Couldn't get hits. %s", err)
 		}
+		t := time.Unix(u.Ondate, 0)
 		ur := UrlResponse{
 			Url:     u.Url,
-			Created: u.Ondate,
+			Created: timediff.GetDifference(time.Now(), t),
 			Id:      strings.TrimRight(req.Referer(), "/") + "/" + IdToUrlString(u.Id),
 			Hits:    hits,
 		}
 		r.Urls = append(r.Urls, ur)
 	}
-	total, err := GetTotalUrls(u.Id)
+	total, err := GetTotalUrls(user.Id)
 	if err != nil {
-		log.Printf("Couldn't get total urls of user %d. %s", u.Id, err)
+		log.Printf("Couldn't get total urls of user %d. %s", user.Id, err)
 	}
 	r.Total = total
 	fmt.Fprintf(rw, "%s", GetJson(r))

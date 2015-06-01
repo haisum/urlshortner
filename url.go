@@ -77,7 +77,7 @@ func (u *Url) GetHits() ([]Hit, error) {
 // Gets urls of a user from offset to limit
 func GetAllUrls(userId int64, offset int, limit int) ([]Url, error) {
 	var urls = []Url{}
-	st, err := app.Db.PrepareNamed("SELECT * FROM urls where userid = :userid LIMIT :offset, :limit")
+	st, err := app.Db.PrepareNamed("SELECT * FROM urls where userid = :userid ORDER BY id DESC LIMIT :offset, :limit")
 	if err != nil {
 		return nil, err
 	}
