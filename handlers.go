@@ -349,7 +349,7 @@ func MeHandler(rw http.ResponseWriter, req *http.Request) {
 		ur := UrlResponse{
 			Url:     u.Url,
 			Created: timediff.GetDifference(time.Now(), t),
-			Id:      strings.TrimRight(req.Referer(), "/") + "/" + IdToUrlString(u.Id),
+			Id:      strings.TrimRight(req.Referer(), "/") + "/l/" + IdToUrlString(u.Id),
 			Hits:    hits,
 		}
 		r.Urls = append(r.Urls, ur)
