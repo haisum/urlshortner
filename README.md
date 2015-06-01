@@ -23,7 +23,7 @@ go build urlshortner.go
 
 ####Download pre-compiled binaries
 
-Compiled binaries for windows and linux are available at https://drive.google.com/file/d/0B9oMRwzY0tXsUFdDNEtsZ2VMamM/view?usp=sharing
+Compiled binaries for windows and linux are available at https://drive.google.com/file/d/0B9oMRwzY0tXsMjNFRHlIOFdsM1k/view?usp=sharing
 
 **Note:** Windows binaries are not tested and may not work. I recommend running this project on linux. If windows binaries didn't work for you, please file an issue.
 
@@ -40,6 +40,7 @@ Features
 - Stats for urls redirected.
 - Beautiful, ajax based intuitive interface.
 - Smart pagination of urls those logged in user shortened.
+- Friendly and easy to read time formatting
 - Brute force protection on login by restricting only 5 failed attempts per email per 30 seconds.
 - Sql injection prevention by binding query params.
 - XSS prevention by using html encoded template variables.
@@ -72,6 +73,6 @@ Screenshots
 
 ![Imgur](http://i.imgur.com/9RXCI41.png)
 
-![Imgur](http://i.imgur.com/VaEa8x4.png)
+![Imgur](http://i.imgur.com/Xv4WZwk.png)
 
-![Imgur](http://i.imgur.com/TkTAwXC.png)
+![Imgur](http://i.imgur.com/wNs2Ocn.png)
