@@ -23,7 +23,7 @@ go build urlshortner.go
 
 ####Download pre-compiled binaries
 
-Compiled binaries for windows and linux are available at https://drive.google.com/file/d/0B9oMRwzY0tXsMjNFRHlIOFdsM1k/view?usp=sharing
+Compiled binaries for windows and linux are available at https://drive.google.com/file/d/0B9oMRwzY0tXsc2tJenZWb29Qbjg/view?usp=sharing
 
 **Note:** Windows binaries are not tested and may not work. I recommend running this project on linux. If windows binaries didn't work for you, please file an issue.
 
