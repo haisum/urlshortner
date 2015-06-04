@@ -3,6 +3,8 @@ Url Shortner written in google golang
 
 This is simple web app for url shortening. 
 
+[![Build Status](https://travis-ci.org/haisum/urlshortner.svg?branch=master)](https://travis-ci.org/haisum/urlshortner)
+
 
 Code Documentation
 ------------
