@@ -132,7 +132,7 @@ func TestGetAllUrls(t *testing.T) {
 		t.Fatalf("%s", err)
 	}
 
-	if urls[0].Url != "http://github.com/mysuperlongurl" || urls[1].Url != "http://htt" || urls[2].Url != "http://klklkllkkl" {
+	if urls[0].Url != "http://klklkllkkl" || urls[1].Url != "http://htt" || urls[2].Url != "http://github.com/mysuperlongurl" {
 		t.Fatalf("Didn't get expected data. %v", urls)
 	}
 }
