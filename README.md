@@ -5,6 +5,8 @@ This is simple web app for url shortening.
 
 [![Build Status](https://travis-ci.org/haisum/urlshortner.svg?branch=master)](https://travis-ci.org/haisum/urlshortner)
 
+[![Coverage Status](https://coveralls.io/repos/haisum/urlshortner/badge.svg?branch=master)](https://coveralls.io/r/haisum/urlshortner?branch=master)
+
 
 Code Documentation
 ------------
